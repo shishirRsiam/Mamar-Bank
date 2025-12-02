@@ -1,0 +1,2 @@
+1 0,12 * * * cd /opt/GitHub/Mamar-Bank-Project-Using-Django && /usr/bin/bash /opt/GitHub/Mamar-Bank-Project-Using-Django/.scripts/git_push.sh >> /opt/GitHub/Mamar-Bank-Project-Using-Django/logs/git_cron.log 2>&1
+
