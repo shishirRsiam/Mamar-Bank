@@ -25,7 +25,7 @@ services:
     image: postgres:16-alpine
     container_name: mamar_bank_postgres
     ports:
-      - "5434:5433"
+      - "5434:5432"
     environment:
       POSTGRES_DB: mamar_bank_db
       POSTGRES_USER: postgres
