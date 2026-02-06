@@ -82,7 +82,7 @@ def check_daily_bonus(user_id):
     current_local_time, next_day_second_remain = Helper.get_cur_time_and_next_day_remain_second()
     cache.set(key, current_local_time.strftime('%Y-%m-%d %H:%M:%S'), next_day_second_remain)
 
-    user.account.balance += 100
+    user.account.balance += 25
     user.account.save()
     
     DailyBonus = Transaction.objects.create(
