@@ -26,9 +26,9 @@ RUN pip install -r requirements.txt
 # Copy project files into the container
 COPY . .
 
-# Expose port 8000 for Django server
-EXPOSE 8000
+# Expose port 8001 for Django server
+EXPOSE 8001
 
 
 # Run migrations and start the Django development server
-CMD ["bash", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+CMD ["bash", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8001"]

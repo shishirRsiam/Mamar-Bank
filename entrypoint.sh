@@ -12,8 +12,8 @@ python manage.py makemigrations
 echo -e "${YELLOW}📦 Applying database migrations...${NC}"
 python manage.py migrate
 
-echo -e "${GREEN}🚀 Starting Django development server at http://0.0.0.0:8000 ...${NC}"
-python manage.py runserver 0.0.0.0:8000
+echo -e "${GREEN}🚀 Starting Django development server at http://0.0.0.0:8001 ...${NC}"
+python manage.py runserver 0.0.0.0:8001
 
-echo -e "${GREEN}🚀 Django development server started at http://0.0.0.0:8000 ...${NC}"
+echo -e "${GREEN}🚀 Django development server started at http://0.0.0.0:8001 ...${NC}"
 
