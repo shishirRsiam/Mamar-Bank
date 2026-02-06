@@ -25,11 +25,13 @@ services:
     image: postgres:16-alpine
     container_name: mamar_bank_postgres
     ports:
-      - "5432:5432"
+      - "5434:5433"
     environment:
       POSTGRES_DB: mamar_bank_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
