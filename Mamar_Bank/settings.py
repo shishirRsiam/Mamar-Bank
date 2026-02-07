@@ -12,7 +12,6 @@ SECRET_KEY = "iuucfx3)-&34tor_w9g4ls2c^rj*1ov3dgui25pu63qkx_2w+e"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -157,3 +156,8 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Dhaka'
+
+
+
+ALLOWED_HOSTS = ["mamarbank.shishirrsiam.dev", "www.mamarbank.shishirrsiam.dev"]
+CSRF_TRUSTED_ORIGINS = ["https://mamarbank.shishirrsiam.dev", "https://www.mamarbank.shishirrsiam.dev"]
