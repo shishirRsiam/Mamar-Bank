@@ -1,5 +1,42 @@
-
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mamar_bank_postgres
+    ports:
+      - "5434:5432"   # host access only (pgAdmin / psql)
+    environment:
+      POSTGRES_DB: mamar_bank_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mamar_bank_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - mamar_bank_net
+
+
+  redis:
+    image: redis:alpine
+    container_name: mamar_bank_redis
+    command: redis-server --appendonly yes --maxmemory 500mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mamar_bank_net
+
+
   mamar_bank:
     build:
       context: .
@@ -8,32 +45,35 @@ services:
     ports:
       - "8001:8001"
     command: >
-      sh -c "until pg_isready -h postgres -p 5432 -U postgres; do sleep 1; done &&
-        python manage.py makemigrations &&
-        python manage.py migrate &&
-        python manage.py runserver 0.0.0.0:8001"
-    restart: unless-stopped
+      sh -c "
+      python manage.py migrate --noinput &&
+      python manage.py runserver 0.0.0.0:8001
+      "
     volumes:
       - .:/app
     depends_on:
-      - redis
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
     networks:
       - mamar_bank_net
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: mamar_bank_postgres
-    ports:
-      - "5434:5432"
-    environment:
-      POSTGRES_DB: mamar_bank_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_PORT: 5432
-      POSTGRES_HOST: postgres
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mamar_bank_worker
+    command: celery -A Mamar_Bank worker --loglevel=info --pool=solo
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - .:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - mamar_bank_net
@@ -50,48 +90,19 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
-    networks:
-      - mamar_bank_net
-
-  redis:
-    image: redis:alpine
-    container_name: mamar_bank_redis
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes --maxmemory 500mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - mamar_bank_net
-
-
-  # Celery Worker
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: mamar_bank_worker
-    command: celery -A Mamar_Bank worker --loglevel=info --pool=solo
-    volumes:
-      - .:/app
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - mamar_bank
     networks:
       - mamar_bank_net
 
 
 volumes:
+  postgres_data:
   redis_data:
   pgadmin_data:
-  postgres_data:
 
 
 networks:
   mamar_bank_net:
     driver: bridge
-
