@@ -57,8 +57,8 @@ services:
     restart: unless-stopped
     networks:
       - mamar_bank_net
-    expose:
-      - "8001"   # 👈 internal only
+    # expose:
+    #   - "8001"   # 👈 internal only
 
 
   worker:
