@@ -1,9 +1,11 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:16-alpine
     container_name: mamar_bank_postgres
     ports:
-      - "5434:5432"   # host access only (pgAdmin / psql)
+      - "5434:5432"
     environment:
       POSTGRES_DB: mamar_bank_db
       POSTGRES_USER: postgres
@@ -42,8 +44,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mamar_bank
-    ports:
-      - "8001:8001"
     command: >
       sh -c "
       python manage.py migrate --noinput &&
@@ -59,6 +59,8 @@ services:
     restart: unless-stopped
     networks:
       - mamar_bank_net
+    expose:
+      - "8001"   # 👈 internal only
 
 
   worker:
@@ -74,6 +76,21 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mamar_bank_net
+
+
+  nginx:
+    image: nginx:alpine
+    container_name: mamar_bank_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      mamar_bank:
+        condition: service_started
     restart: unless-stopped
     networks:
       - mamar_bank_net
